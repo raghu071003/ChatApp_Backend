@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { User } from "../Models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { options } from "../constants.js";
 
 const generateTokens =async (userId)=>{
     const user = await User.findById(userId);
@@ -21,6 +23,7 @@ const generateTokens =async (userId)=>{
 
 const userLogin = async(req,res)=>{
     // console.log(req.body);
+    
     const {email,password} = req.body;
     const user = await User.findOne({email});
     if(!user){
@@ -31,6 +34,8 @@ const userLogin = async(req,res)=>{
         throw new ApiError(401,"Invalid Password")
     }
     const {accessToken,refreshToken} =  await generateTokens(user._id);
+    console.log("x");
+
     res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",refreshToken,options).json(
         new ApiResponse(200, "Logged in successfully",)
     )
