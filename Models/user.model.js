@@ -3,22 +3,32 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
 const userSchema = new Schema({
-    fullName:{
-        type:String,
-        required:true,
-        trim:true,
+    fullName: {
+        type: String,
+        required: true,
+        trim: true,
     },
-    email:{
-        type:String,
-        required:true,
-        trim:true,
-        lowercase:true
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true,
+        unique: true
     },
-    password:{
-        type:String,
-        required:true,
-    }
-})
+    password: {
+        type: String,
+        required: true,
+    },
+    refreshToken: {
+        type: String
+    },
+    profileImg: {
+        type: String,
+        default: "https://pluspng.com/img-png/png-user-icon-circled-user-icon-2240.png"
+    },
+    contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Users" }]
+});
+
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
