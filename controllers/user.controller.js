@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { options } from "../constants.js";
 import { Chat } from "../Models/chat.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const generateTokens =async (userId)=>{
     const user = await User.findById(userId);
@@ -182,7 +183,7 @@ const getChat = async(req,res)=>{
         }).populate("messages.sender", "name profileImg"); // Populate sender details
 
         if (!chat) {
-            return res.status(404).json({ message: "Chat not found" });
+            return res.status(400).json({ message: "Chat not found" });
         }
 
         res.status(200).json(chat);
@@ -193,5 +194,35 @@ const getChat = async(req,res)=>{
     
 }
 
-
-export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat}
+const uploadPicture = async(req,res)=>{
+    const userId = req.user._id;
+    
+    if(!userId){
+        return new ApiError(402,"Invalid User");
+    }
+    
+    
+    const localPath = req.file.path;
+    // console.log(localPath);
+    
+    const uploadOnCloud = await uploadOnCloudinary(localPath);
+    
+    
+    try {
+        await User.findOneAndUpdate(
+            userId,
+            {
+                profileImg:uploadOnCloud.url
+            },{
+                new:true
+            }
+        )
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(404);
+    }
+    return res.status(200).json({message:"Updated!"})
+    
+}
+export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture}

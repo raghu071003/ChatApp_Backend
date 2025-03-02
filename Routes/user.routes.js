@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { addContact, getChat, getChats, getContacts, getUser, getUsers, userLogin, userLogout, userRegister } from "../controllers/user.controller.js";
+import { addContact, getChat, getChats, getContacts, getUser, getUsers, uploadPicture, userLogin, userLogout, userRegister } from "../controllers/user.controller.js";
 import VerifyJwt from "../Middleware/VerifyJwt.js";
+import { upload } from "../utils/profileUpload.js";
 const router = Router();
 
 router.route("/login").post(userLogin);
@@ -12,5 +13,6 @@ router.route("/getContacts").get(VerifyJwt,getContacts)
 router.route("/search").get(getUsers)
 router.route("/getChats").get(VerifyJwt,getChats)
 router.route("/messages").post(VerifyJwt, getChat)
+router.route("/updateProfilePicture").post(VerifyJwt,upload,uploadPicture)
 
 export default router;
