@@ -171,11 +171,10 @@ const getChats = async (req, res) => {
     }
 };
 
-const getChat = async(req,res)=>{
+const getChat = async (req, res) => {
     try {
-        const {activeChat} = req.body
-
-        const loggedInUserId = req.user._id; // Extracted from JWT token
+        const { activeChat, page = 1, limit = 20 } = req.body;
+        const loggedInUserId = req.user._id;
 
         // Find chat where both users are members
         const chat = await Chat.findOne({
@@ -186,13 +185,19 @@ const getChat = async(req,res)=>{
             return res.status(400).json({ message: "Chat not found" });
         }
 
-        res.status(200).json(chat);
+        const totalMessages = chat.messages.length;
+        const startIndex = Math.max(0, totalMessages - page * limit);
+        const endIndex = totalMessages - (page - 1) * limit;
+
+        const paginatedMessages = chat.messages.slice(startIndex, endIndex);
+
+        res.status(200).json({ messages: paginatedMessages, totalMessages });
     } catch (error) {
         console.error("Error fetching chat:", error);
         res.status(500).json({ message: "Server error" });
     }
-    
-}
+};
+
 
 const uploadPicture = async(req,res)=>{
     const userId = req.user._id;
@@ -225,4 +230,14 @@ const uploadPicture = async(req,res)=>{
     return res.status(200).json({message:"Updated!"})
     
 }
-export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture}
+import {GoogleGenerativeAI } from "@google/generative-ai"
+import dotenv from "dotenv"
+dotenv.config()
+const generateMessage = async(req,res)=>{
+    const genAI = new GoogleGenerativeAI('AIzaSyCX1jO_XaUfjURm7SNFFuSxVfiTqPu--A0');
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = "Explain how AI works";
+    const result = await model.generateContent(prompt);
+    console.log(result.response.text());
+}
+export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture,generateMessage}
