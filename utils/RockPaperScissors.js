@@ -14,3 +14,5 @@ function determineWinner(moves) {
         return { winner: player2, moves };
     }
 }
+
+export {determineWinner}

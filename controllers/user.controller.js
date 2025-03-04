@@ -230,14 +230,35 @@ const uploadPicture = async(req,res)=>{
     return res.status(200).json({message:"Updated!"})
     
 }
-import {GoogleGenerativeAI } from "@google/generative-ai"
-import dotenv from "dotenv"
-dotenv.config()
-const generateMessage = async(req,res)=>{
-    const genAI = new GoogleGenerativeAI('');
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const prompt = "Explain how AI works";
-    const result = await model.generateContent(prompt);
-    console.log(result.response.text());
+
+import { HfInference } from "@huggingface/inference";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables
+
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+async function enhanceText() {
+    const message = "Hi ra Ela unnav"; 
+    console.log("Original Message:", message);
+    
+    const prompt = `Rewrite this message in a more engaging and stylish way with emojis. Keep it short and concise: "${message}"`;
+
+    const response = await hf.textGeneration({
+        model: "HuggingFaceH4/zephyr-7b-beta",
+        inputs: prompt,
+        parameters: { 
+            max_new_tokens: 20,  // ✅ Restrict response length
+            temperature: 0.7, 
+            return_full_text: false // ✅ Avoid repeating the input prompt
+        },
+    });
+
+    console.log("Enhanced Message:", response.generated_text.trim());
 }
-export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture,generateMessage}
+
+
+
+
+
+export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture,enhanceText}
