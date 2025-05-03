@@ -238,29 +238,6 @@ const uploadPicture = async(req,res)=>{
     return res.status(200).json({message:"Updated!"})
     
 }
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({apiKey:"AIzaSyDJ4-17Ci-OB-Y2nUzdf5W3pPyedNLQLs4"});
-
-async function enhanceText(req, res) {
-    try {
-      const message = "Hi ra ela unnav😁"; // You can later get this from req.body.message
-      const prompt = `Improve the clarity and grammar of this user message while keeping the meaning the same: "${message}"`;
-  
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // or "gemini-pro" if preferred
-  
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const improvedText = response.text();
-  
-    //   console.log(improvedText);
-  
-      res.json({ original: message, improved: improvedText });
-    } catch (error) {
-      console.error("Error enhancing text:", error);
-      res.status(500).json({ error: "Failed to enhance text." });
-    }
-  }
 
 
 
