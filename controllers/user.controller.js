@@ -66,23 +66,31 @@ const userRegister = async (req, res) => {
         return res.status(500).json(new ApiError(500, "Internal Server Error"));
     }
 };
-const userLogout = async(req,res)=>{
+const userLogout = async (req, res) => {
     try {
-        User.findOneAndUpdate(
-            req.user._id,
-            {
-                refreshToken:undefined
-            },{
-                new:true
-            }
-        )
+        await User.findOneAndUpdate(
+            { _id: req.user._id },
+            { refreshToken: undefined },
+            { new: true }
+        );
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true, // only if you're using HTTPS
+            sameSite: 'Strict'
+        });
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: true, // only if you're using HTTPS
+            sameSite: 'Strict'
+        });
+        
+        return res.status(201).json({ message: 'Logout successful' });
     } catch (error) {
         console.log(error);
-        
-        return res.staus(404);
+        return res.status(404).json({ error: 'Logout failed' });
     }
-    return new ApiResponse(200,{},"LoggedOut!")
-}
+};
+
 
 const getUser = async(req,res)=>{
     try {
@@ -230,35 +238,31 @@ const uploadPicture = async(req,res)=>{
     return res.status(200).json({message:"Updated!"})
     
 }
+import { GoogleGenAI } from "@google/genai";
 
-import { HfInference } from "@huggingface/inference";
-import dotenv from "dotenv";
+const ai = new GoogleGenAI({apiKey:"AIzaSyDJ4-17Ci-OB-Y2nUzdf5W3pPyedNLQLs4"});
 
-dotenv.config(); // Load environment variables
-
-const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
-
-async function enhanceText() {
-    const message = "Hi ra Ela unnav"; 
-    console.log("Original Message:", message);
-    
-    const prompt = `Rewrite this message in a more engaging and stylish way with emojis. Keep it short and concise: "${message}"`;
-
-    const response = await hf.textGeneration({
-        model: "HuggingFaceH4/zephyr-7b-beta",
-        inputs: prompt,
-        parameters: { 
-            max_new_tokens: 20,  // ✅ Restrict response length
-            temperature: 0.7, 
-            return_full_text: false // ✅ Avoid repeating the input prompt
-        },
-    });
-
-    console.log("Enhanced Message:", response.generated_text.trim());
-}
+async function enhanceText(req, res) {
+    try {
+      const message = "Hi ra ela unnav😁"; // You can later get this from req.body.message
+      const prompt = `Improve the clarity and grammar of this user message while keeping the meaning the same: "${message}"`;
+  
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // or "gemini-pro" if preferred
+  
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const improvedText = response.text();
+  
+    //   console.log(improvedText);
+  
+      res.json({ original: message, improved: improvedText });
+    } catch (error) {
+      console.error("Error enhancing text:", error);
+      res.status(500).json({ error: "Failed to enhance text." });
+    }
+  }
 
 
 
 
-
-export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture,enhanceText}
+export {userLogin,userRegister,getUser,userLogout,addContact,getContacts,getUsers,getChats,getChat,uploadPicture}

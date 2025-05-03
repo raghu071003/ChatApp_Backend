@@ -5,8 +5,10 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "@google/genai": "^0.7.0",
     "@google/generative-ai": "^0.22.0",
     "@huggingface/inference": "^3.4.1",
+    "@langchain/google-genai": "^0.2.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
@@ -15,6 +17,7 @@
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.20",
     "mongoose": "^8.11.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",

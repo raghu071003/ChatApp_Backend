@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { addContact, enhanceText, getChat, getChats, getContacts, getUser, getUsers, uploadPicture, userLogin, userLogout, userRegister } from "../controllers/user.controller.js";
+import { addContact, getChat, getChats, getContacts, getUser, getUsers, uploadPicture, userLogin, userLogout, userRegister } from "../controllers/user.controller.js";
+import { enhanceText } from "../utils/enhanceMessage.js";
 import VerifyJwt from "../Middleware/VerifyJwt.js";
 import { upload } from "../utils/profileUpload.js";
 const router = Router();
@@ -14,5 +15,5 @@ router.route("/search").get(getUsers)
 router.route("/getChats").get(VerifyJwt,getChats)
 router.route("/messages").post(VerifyJwt, getChat)
 router.route("/updateProfilePicture").post(VerifyJwt,upload,uploadPicture)
-router.route("/genai").get(enhanceText)
+router.route("/genai").post(enhanceText)
 export default router;
